@@ -665,8 +665,12 @@ def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4)
     settings.densityBody=dr
     settings.densityLeg=dl
 
+    #ensure ctr_motor is zero
+    link.ctr_motor(0.,0.)
+    #check whether each state can be reached
     if not link.check_validity():
         return None
+        
     robot=LinkagePhysics(link,settings=settings)
     robot.create_torso((-abs(sep),-1.),(abs(sep),1.))
     robot.create_legs(0., -sep, None, 'symmetric_leg', nleg)
