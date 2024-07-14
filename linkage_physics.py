@@ -401,12 +401,14 @@ class LinkagePhysics:
             self.world.Step(timeStep, self.settings.velocityIterations, self.settings.positionIterations)
             self.world.ClearForces()
         t_step = time() - t_step
-    def eval_performance(self, seconds=10.):
-        pos0=self.chassis.position.x
+    def eval_performance(self, seconds=10., y_error_bound=2.):
+        x0=self.chassis.position.x
+        y0=self.chassis.position.y
         self.settings.motorOn=True
         self.simulate(int(seconds*self.settings.hz))
-        pos1=self.chassis.position.x
-        return abs(pos1-pos0)
+        x1=self.chassis.position.x
+        y1=self.chassis.position.y
+        return abs(x1-x0) if abs(y1-y0)<y_error_bound else -1.
     def render(self, screen):
         self.renderer.screenSize=(screen.get_width(),screen.get_height())
         PygameDraw.surface=screen
