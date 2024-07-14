@@ -397,20 +397,23 @@ class LinkagePhysics:
             joint.motorEnabled=self.settings.motorOn
 
         diffY=0
+        diffA=0
         for i in range(batch):
             self.world.Step(timeStep, self.settings.velocityIterations, self.settings.positionIterations)
             self.world.ClearForces()
+            diffA=max(diffA,abs(self.chassis.angle))
             if y0 is not None:
                 diffY=max(diffY,abs(self.chassis.position.y-y0))
-        return diffY
-    def eval_performance(self, seconds=10., y_error_bound=2.):
+        return diffY,diffA
+    def eval_performance(self, seconds=10., y_error_bound=0.1, a_error_bound=math.pi*30./180.):
         x0=self.chassis.position.x
         y0=self.chassis.position.y
         self.settings.motorOn=True
-        diffY = self.simulate(int(seconds*self.settings.hz), y0=y0)
-        x1=self.chassis.position.x
-        print('diffY=%f'%diffY)
-        return abs(x1-x0) if diffY<y_error_bound else -1.
+        diffY,diffA = self.simulate(int(seconds*self.settings.hz), y0=y0)
+        diffX = abs(self.chassis.position.x-x0)
+        score = diffX if (diffY<y_error_bound and diffA<a_error_bound) else -1.
+        #print('diffX=%f diffY=%f diffA=%f score=%f'%(diffX,diffY,diffA,score))
+        return diffX
     def render(self, screen):
         self.renderer.screenSize=(screen.get_width(),screen.get_height())
         PygameDraw.surface=screen
