@@ -271,6 +271,16 @@ class Linkage:
         link.set_node_C2(7,6,6.57)
         return link
     @staticmethod
+    def createSimple(B=13):
+        link=Linkage(3)
+        link.B=B
+        link.set_rad_motor(1.5)
+        link.set_ctr_motor((0.0,0.0))
+        link.set_node_fixed(2,(3.8,-0.78))
+        link.set_node_C1(3,2,4.15)
+        link.set_node_C2(3,1,6.0)
+        return link
+    @staticmethod
     def createFromFile(name):
         import pickle
         with open(name,'rb') as f:
@@ -313,5 +323,5 @@ def main_linkage(link):
         fid=fid+1
         
 if __name__=='__main__':
-    link=Linkage.createJansen()
+    link=Linkage.createSimple()
     main_linkage(link)

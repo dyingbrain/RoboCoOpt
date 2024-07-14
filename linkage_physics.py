@@ -197,6 +197,18 @@ class LinkagePhysics:
                 bodyA=self.ground,
                 bodyB=self.chassis,
                 anchor=self.offset)
+    def ensure_anchor_in_chassis(self, anchor):
+        if abs(anchor[0])<self.box[0] and abs(anchor[1])<self.box[1]:
+            return
+        self.box=(  max(abs(anchor[0]),self.box[0]),
+                    max(abs(anchor[1]),self.box[1]))
+        chassis_fixture = b2FixtureDef(
+            shape=b2PolygonShape(box=self.box),
+            density=self.settings.densityBody,
+            friction=self.settings.friction,
+            groupIndex=-1)
+        self.chassis.DestroyFixture(self.chassis.fixtures[0])
+        self.chassis.CreateFixture(chassis_fixture)
     def create_legs(self, s, sep, rad_motor, mode, nrLeg):
         if not hasattr(self,"motorJoints"):
             self.motorJoints=[]
@@ -294,6 +306,7 @@ class LinkagePhysics:
                                 bodyA=self.C1s[i],
                                 bodyB=self.chassis,
                                 anchor=self.anchor[self.link.C1[i]])
+                            self.ensure_anchor_in_chassis(self.anchor[self.link.C1[i]])
                         else:
                             self.world.CreateRevoluteJoint(
                                 bodyA=self.C1s[i],
@@ -322,6 +335,7 @@ class LinkagePhysics:
                                 bodyA=self.C2s[i],
                                 bodyB=self.chassis,
                                 anchor=self.anchor[self.link.C2[i]])
+                            self.ensure_anchor_in_chassis(self.anchor[self.link.C2[i]])
                         else:
                             self.world.CreateRevoluteJoint(
                                 bodyA=self.C2s[i],
@@ -660,7 +674,7 @@ def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4)
     return link
         
 if __name__=='__main__':
-    link=Linkage.createJansen()
-    robot=create_robot(link, spd=1., mu=0.9, sep=-5.)
+    link=Linkage.createSimple()
+    robot=create_robot(link, spd=1., mu=0.9, sep=5.)
     print("Walking distance over 10 seconds: %f"%robot.eval_performance(10.))
     main_linkage_physics(robot)
