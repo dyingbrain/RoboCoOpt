@@ -171,7 +171,7 @@ class LinkageAnnealer(Annealer):
                     break
     def energy(self):
         link=self.set_to_linkage()
-        robot=create_robot(link, spd=1., mu=0.9, sep=5.)
+        robot=create_robot(link, sep=5.)
         return -robot.eval_performance(10.)
 
 if __name__=='__main__':
@@ -181,5 +181,5 @@ if __name__=='__main__':
     
     opt.state=state
     link=opt.set_to_linkage()
-    robot=create_robot(link, spd=1., mu=0.9, sep=5.)
+    robot=create_robot(link, sep=5.)
     main_linkage_physics(robot)
