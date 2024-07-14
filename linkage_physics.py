@@ -664,14 +664,16 @@ def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4)
     settings.friction=mu
     settings.densityBody=dr
     settings.densityLeg=dl
-    
-    link=LinkagePhysics(link,settings=settings)
-    link.create_torso((-abs(sep),-1.),(abs(sep),1.))
-    link.create_legs(0., -sep, None, 'symmetric_leg', nleg)
-    link.create_legs(0.,  sep, None, 'symmetric_back_leg', nleg)
-    bb=link.bounding_box()
-    link.create_floor(offy=bb.lowerBound.y)
-    return link
+
+    if not link.check_validity():
+        return None
+    robot=LinkagePhysics(link,settings=settings)
+    robot.create_torso((-abs(sep),-1.),(abs(sep),1.))
+    robot.create_legs(0., -sep, None, 'symmetric_leg', nleg)
+    robot.create_legs(0.,  sep, None, 'symmetric_back_leg', nleg)
+    bb=robot.bounding_box()
+    robot.create_floor(offy=bb.lowerBound.y)
+    return robot
         
 if __name__=='__main__':
     link=Linkage.createSimple()

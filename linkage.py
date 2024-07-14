@@ -128,6 +128,37 @@ class Linkage:
             self.node_position[i]=(xi,yi)
         self.curve.append(self.node_position[-1])
         return math.fmod(theta,math.pi*2),True
+    def check_validity(self, ntheta=360):
+        self.node_position_batch=[np.vstack((np.ones(ntheta)*n[0],np.ones(ntheta)*n[1])) for n in self.node_position]
+        theta=np.linspace(0,math.pi*2,ntheta)
+        #motor node
+        if hasattr(self,"linearMotor") and self.linearMotor:
+            x1=self.ctr_motor[0]+np.cos(theta)*self.rad_motor[0]
+            y1=self.ctr_motor[1]+np.cos(theta)*self.rad_motor[1]
+        else:
+            x1=self.ctr_motor[0]+np.cos(theta)*self.rad_motor
+            y1=self.ctr_motor[1]+np.sin(theta)*self.rad_motor
+        self.node_position_batch[1] = np.vstack((x1, y1))
+        # for all other nodes
+        for i in range(len(self.node_position)):
+            if self.U[i] == 0 or self.F[i] == 1:
+                continue
+            # assemble
+            d1 = self.node_position_batch[self.C1[i]]
+            d2 = self.node_position_batch[self.C2[i]]
+            d12 = d1 - d2
+            d12Sqr = np.linalg.norm(d12, axis=0) ** 2
+            len1Sqr = self.len1[i] ** 2
+            len2Sqr = self.len2[i] ** 2
+            coefA = d12Sqr + len1Sqr - len2Sqr
+            coefB = 4 * d12Sqr * len1Sqr - coefA ** 2
+            if np.any(coefB < 0.):
+                return False
+            coefB = np.sqrt(coefB)
+            xi = d1[0] + (-d12[0] * coefA + d12[1] * coefB) / (2 * d12Sqr)
+            yi = d1[1] + (-d12[1] * coefA - d12[0] * coefB) / (2 * d12Sqr)
+            self.node_position_batch[i] = np.vstack((xi, yi))
+        return True
     def transCoordXY(self, screen, x, y):
         BX=self.B
         BY=BX*screen.get_height()/screen.get_width()
@@ -324,4 +355,5 @@ def main_linkage(link):
         
 if __name__=='__main__':
     link=Linkage.createSimple()
+    link.check_validity()
     main_linkage(link)
