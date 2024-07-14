@@ -4,7 +4,9 @@ The base code implements the planar linkage kinematics in `linkage.py`, and the 
 
 #### Install
 To run the code, you just need to install the packages as defined in environment.yml. But it is recommended to use the conda environment by typing:
+
 `conda env create -f environment.yml`
+
 `conda activate myenv`
 
 
