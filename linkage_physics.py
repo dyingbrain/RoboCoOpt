@@ -418,7 +418,7 @@ class LinkagePhysics:
         diffY,diffA = self.simulate(int(seconds*self.settings.hz), y0=y0, y_error_bound=y_error_bound, a_error_bound=a_error_bound)
         diffX = abs(self.chassis.position.x-x0)
         score = diffX if (diffY<y_error_bound and diffA<a_error_bound) else -1.
-        print('diffX=%f diffY=%f diffA=%f score=%f'%(diffX,diffY,diffA,score))
+        #print('diffX=%f diffY=%f diffA=%f score=%f'%(diffX,diffY,diffA,score))
         return diffX
     def render(self, screen):
         self.renderer.screenSize=(screen.get_width(),screen.get_height())
