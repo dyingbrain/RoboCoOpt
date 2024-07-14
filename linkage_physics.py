@@ -385,7 +385,7 @@ class LinkagePhysics:
         return self.renderer.zoom
     def set_zoom(self,zoom):
         self.renderer.zoom=zoom
-    def simulate(self, batch=60, y0=None):
+    def simulate(self, batch=60, y0=None, y_error_bound=None, a_error_bound=None):
         if self.settings.hz > 0.0:
             timeStep = 1.0 / self.settings.hz
         else: timeStep = 0.0
@@ -401,18 +401,24 @@ class LinkagePhysics:
         for i in range(batch):
             self.world.Step(timeStep, self.settings.velocityIterations, self.settings.positionIterations)
             self.world.ClearForces()
-            diffA=max(diffA,abs(self.chassis.angle))
+            #diffY
             if y0 is not None:
                 diffY=max(diffY,abs(self.chassis.position.y-y0))
+                if y_error_bound is not None and diffY>y_error_bound:
+                    return diffY,diffA
+            #diffA
+            diffA=max(diffA,abs(self.chassis.angle))
+            if a_error_bound is not None and diffA>=a_error_bound:
+                return diffY,diffA
         return diffY,diffA
     def eval_performance(self, seconds=10., y_error_bound=0.1, a_error_bound=math.pi*30./180.):
         x0=self.chassis.position.x
         y0=self.chassis.position.y
         self.settings.motorOn=True
-        diffY,diffA = self.simulate(int(seconds*self.settings.hz), y0=y0)
+        diffY,diffA = self.simulate(int(seconds*self.settings.hz), y0=y0, y_error_bound=y_error_bound, a_error_bound=a_error_bound)
         diffX = abs(self.chassis.position.x-x0)
         score = diffX if (diffY<y_error_bound and diffA<a_error_bound) else -1.
-        #print('diffX=%f diffY=%f diffA=%f score=%f'%(diffX,diffY,diffA,score))
+        print('diffX=%f diffY=%f diffA=%f score=%f'%(diffX,diffY,diffA,score))
         return diffX
     def render(self, screen):
         self.renderer.screenSize=(screen.get_width(),screen.get_height())
