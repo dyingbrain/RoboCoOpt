@@ -385,7 +385,7 @@ class LinkagePhysics:
         return self.renderer.zoom
     def set_zoom(self,zoom):
         self.renderer.zoom=zoom
-    def simulate(self, batch=60):
+    def simulate(self, batch=60, y0=None):
         if self.settings.hz > 0.0:
             timeStep = 1.0 / self.settings.hz
         else: timeStep = 0.0
@@ -396,19 +396,21 @@ class LinkagePhysics:
         for joint in self.motorJoints:
             joint.motorEnabled=self.settings.motorOn
 
-        t_step = time()
+        diffY=0
         for i in range(batch):
             self.world.Step(timeStep, self.settings.velocityIterations, self.settings.positionIterations)
             self.world.ClearForces()
-        t_step = time() - t_step
+            if y0 is not None:
+                diffY=max(diffY,abs(self.chassis.position.y-y0))
+        return diffY
     def eval_performance(self, seconds=10., y_error_bound=2.):
         x0=self.chassis.position.x
         y0=self.chassis.position.y
         self.settings.motorOn=True
-        self.simulate(int(seconds*self.settings.hz))
+        diffY = self.simulate(int(seconds*self.settings.hz), y0=y0)
         x1=self.chassis.position.x
-        y1=self.chassis.position.y
-        return abs(x1-x0) if abs(y1-y0)<y_error_bound else -1.
+        print('diffY=%f'%diffY)
+        return abs(x1-x0) if diffY<y_error_bound else -1.
     def render(self, screen):
         self.renderer.screenSize=(screen.get_width(),screen.get_height())
         PygameDraw.surface=screen
@@ -681,8 +683,17 @@ def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4)
     robot.create_floor(offy=bb.lowerBound.y)
     return robot
         
+import pickle
+from optimizer_anneal import *
 if __name__=='__main__':
-    link=Linkage.createSimple()
+
+    opt=LinkageAnnealer()
+    with open('best.pickle', 'rb') as handle:
+        state=pickle.load(handle)
+    
+    opt.state=state
+    link=opt.set_to_linkage()
+    #link=Linkage.createSimple()
     robot=create_robot(link, sep=5.)
     print("Walking distance over 10 seconds: %f"%robot.eval_performance(10.))
     main_linkage_physics(robot)
