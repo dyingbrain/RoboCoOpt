@@ -176,7 +176,9 @@ class LinkageAnnealer(Annealer):
 
 if __name__=='__main__':
     opt=LinkageAnnealer()
+    opt.steps=1000
     state,e=opt.anneal()
+    
     opt.state=state
     link=opt.set_to_linkage()
     robot=create_robot(link, spd=1., mu=0.9, sep=5.)
