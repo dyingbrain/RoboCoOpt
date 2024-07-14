@@ -578,8 +578,8 @@ def main_linkage_physics(link, path='frms'):
     fid=0
     print("SPACE    : simulate")
     print("LCTRL    : orthogonal render")
-    print("z        : perspective render")
-    print("x        : perspective, animation render")
+    print("1        : perspective render")
+    print("2        : perspective, animation render")
     print("RCTRL    : switch motor")
     print("LSHIFT   : center camera")
     print("MOUSE1   : pan")
@@ -593,10 +593,10 @@ def main_linkage_physics(link, path='frms'):
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_LCTRL:
                 orthoCam=False
                 pov=not pov
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_z:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_1:
                 orthoCam=True
                 pov=not pov
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_x:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
                 orthoCam=False
                 povAll=not povAll
                 frmId=0

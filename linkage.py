@@ -293,13 +293,15 @@ def main_linkage(link):
     while not done:
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
-                done=True
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                sim=not sim
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_LCTRL:
-                pov=not pov
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                link.random_transform()
+                    done=True
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    sim=not sim
+                elif event.key == pygame.K_LCTRL:
+                    pov=not pov
+                elif event.key == pygame.K_1:
+                    link.random_transform()
         screen_hires.fill([255,255,255])
         if sim:
             alpha,succ=link.forward_kinematic(alpha+spd)
