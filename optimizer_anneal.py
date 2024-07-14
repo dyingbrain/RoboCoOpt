@@ -1,6 +1,6 @@
 from linkage_physics import *
 from anneal import Annealer
-import copy
+import copy,pickle
 
 class LinkageAnnealer(Annealer):
     NOT_USED=-1
@@ -89,11 +89,12 @@ class LinkageAnnealer(Annealer):
                         return False
         return True
     def change_geometry(self):
-        #we can change ctr_motor,rad_motor,len1,len2
+        #we can change rad_motor,len1,len2
+        #we cannot change ctr_motor
         ids=[]
         for i in range(self.nrN()):
             if i==0:
-                ids+=[1,2,3]
+                ids+=[1]#ids+=[1,2,3]
             else: ids+=[i*5+2,i*5+3]
         id=random.choice(ids)
         ctr=self.state[id]
@@ -180,6 +181,9 @@ if __name__=='__main__':
     opt=LinkageAnnealer()
     opt.steps=1000
     state,e=opt.anneal()
+    print('best walk distance=%f'%(-e))
+    with open('best.pickle', 'wb') as handle:
+        pickle.dump(state, handle)
     
     opt.state=state
     link=opt.set_to_linkage()
