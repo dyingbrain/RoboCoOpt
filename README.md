@@ -36,6 +36,11 @@ Once Anaconda is installed, you can open the anaconda and type the following com
 
 `python optimizer_anneal.py`
 
+### Installing Povray on Windows
 
-
-
+On windows, the default povray does not work. We need a special version of povray that is independently compiled called MegaPov.
+I have included a version of this MegaPov in the project, i.e., the megapov.rar. To enable povray on windows, unzip this folder to any directory.
+Let's say you have a povray.exe located in "C:\Users\Admin\AppData\Roaming\POV-Ray\bin".
+After this step, you need to add this to your system path.
+Now you can press "LSHIFT" in the window to have the povray render a nice image for you, an example is as follows:
+![alt text](https://github.com/dyingbrain/RoboCoOpt/blob/main/frm.png)
