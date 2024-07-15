@@ -36,7 +36,7 @@ class LinkageAnnealer(Annealer):
                 ret+=[-1,-1,random.uniform(-self.B,self.B),random.uniform(-self.B,self.B),state]
             elif i==0:
                 #ret+=[-1,random.uniform(self.B/10,self.B),random.uniform(-self.B,self.B),random.uniform(-self.B,self.B),state]
-                ret+=[-1,0.0,0.0,random.uniform(-self.B,self.B),state]
+                ret+=[-1,random.uniform(self.B/10,self.B),0.0,0.0,state]
             else:
                 s=[-1,-1,-1,-1,-1]
                 while s[0]==s[1]:

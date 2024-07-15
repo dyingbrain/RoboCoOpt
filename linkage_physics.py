@@ -198,12 +198,14 @@ class LinkagePhysics:
                 bodyB=self.chassis,
                 anchor=self.offset)
     def ensure_anchor_in_chassis(self, anchor):
-        if abs(anchor[0])<self.box[0] and abs(anchor[1])<self.box[1]:
+        if not hasattr(self,'boxExt'):
+            self.boxExt=self.box
+        if abs(anchor[0])<self.boxExt[0] and abs(anchor[1])<self.boxExt[1]:
             return
-        self.box=(  max(abs(anchor[0]),self.box[0]),
-                    max(abs(anchor[1]),self.box[1]))
+        self.boxExt=(   max(abs(anchor[0]),self.boxExt[0]),
+                        max(abs(anchor[1]),self.boxExt[1]))
         chassis_fixture = b2FixtureDef(
-            shape=b2PolygonShape(box=self.box),
+            shape=b2PolygonShape(box=self.boxExt),
             density=self.settings.densityBody,
             friction=self.settings.friction,
             groupIndex=-1)
@@ -671,6 +673,15 @@ def main_linkage_physics(link, path='frms'):
         fid=fid+1
         
 def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4):
+    if isinstance(link,str):
+        import pickle
+        from optimizer_anneal import LinkageAnnealer
+        opt=LinkageAnnealer()
+        with open(link, 'rb') as handle:
+            state=pickle.load(handle)
+        opt.state=state
+        link=opt.set_to_linkage()
+        
     settings=fwSettings()
     settings.torque=tau
     settings.motorSpeed=spd
@@ -692,17 +703,8 @@ def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4)
     robot.create_floor(offy=bb.lowerBound.y)
     return robot
         
-import pickle
-from optimizer_anneal import *
 if __name__=='__main__':
-
-    opt=LinkageAnnealer()
-    with open('best.pickle', 'rb') as handle:
-        state=pickle.load(handle)
-    
-    opt.state=state
-    link=opt.set_to_linkage()
     #link=Linkage.createSimple()
-    robot=create_robot(link, sep=5.)
-    print("Walking distance over 10 seconds: %f"%robot.eval_performance(10.))
+    robot=create_robot('best.pickle', sep=5.)
+    #print("Walking distance over 10 seconds: %f"%robot.eval_performance(10.))
     main_linkage_physics(robot)
