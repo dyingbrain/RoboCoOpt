@@ -704,7 +704,7 @@ def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4)
     return robot
         
 if __name__=='__main__':
-    #link=Linkage.createSimple()
-    robot=create_robot('best.pickle', sep=5.)
+    link=Linkage.createSimple()
+    robot=create_robot(link, sep=5.)
     #print("Walking distance over 10 seconds: %f"%robot.eval_performance(10.))
     main_linkage_physics(robot)

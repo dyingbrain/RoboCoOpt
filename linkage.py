@@ -280,7 +280,7 @@ class Linkage:
             with open(path,'w') as f:
                 f.write(str(s))
         elif screen is not None:
-            s.render(path,width=screen.get_width(),height=screen.get_height(),antialiasing=0.3)
+            s.render(path,width=screen.get_width(),height=screen.get_height())#,antialiasing=0.3)
             img=pygame.image.load(path)
             screen.blit(img,(0,0))
     @staticmethod
