@@ -70,3 +70,8 @@ After this step, you need to add this to your system path as follows:
 
 Now you can press "LSHIFT" in the window to have the povray render a nice image for you, an example is as follows:
 ![alt text](https://github.com/dyingbrain/RoboCoOpt/blob/main/frm.png)
+
+### Record your robot walking animation
+
+To help you share the result you are most proud of, when you call function `main_linkage_physics`, you can pass the parameter `recordTime=10` to record a 10-min animation as follows:
+![alt text](https://github.com/dyingbrain/RoboCoOpt/blob/main/record.gif)
