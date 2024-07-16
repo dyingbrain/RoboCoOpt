@@ -65,7 +65,7 @@ Let's say you have a povray.exe located in "C:\Users\Admin\AppData\Roaming\POV-R
 After this step, you need to add this to your system path as follows:
 ![alt text](https://github.com/dyingbrain/RoboCoOpt/blob/main/sys.png)
 
-# Note that you might need to restart the system to let the setting enabled.
+#### Note that you might need to restart the system to let the setting enabled.
 
 
 Now you can press "LSHIFT" in the window to have the povray render a nice image for you, an example is as follows:
