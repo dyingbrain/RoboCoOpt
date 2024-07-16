@@ -4,23 +4,23 @@ The base code implements the planar linkage kinematics in `linkage.py`, and the 
 
 #### Install
 
+The code has been tested on Python 3.6 and 3.12. 
+
 To run the code, you first need to install Anaconda, which can be downloaded from https://docs.anaconda.com/anaconda/install/
 
 Once Anaconda is installed, you can open the anaconda and type the following commands in order:
 
-1. install box2dpy (https://github.com/pybox2d/pybox2d). Fortunately, you can install it via Anaconda.
-   
-`conda install conda-forge::box2d-py`
-
-3. now, you can create your conda environment, named "box2d-py"
+1. now, you can create your conda environment, named "box2d-py"
    
 `conda create -n box2d-py`
 
-5. remember every time you activate the environment, before you use it.
+2. remember every time you activate the environment, before you use it.
    
 `conda activate box2d-py`
 
-7. once you activate the environment for the first time, you need to install the following packages.
+3. once you activate the environment for the first time, you need to install the following packages.
+
+`conda install conda-forge::box2d-py` (box2d-py (https://github.com/pybox2d/pybox2d). Fortunately, you can install it via Anaconda.)
    
 `pip install pygame`
 
@@ -28,13 +28,34 @@ Once Anaconda is installed, you can open the anaconda and type the following com
 
 `pip install vapory`
 
-9. run the Python scripts one by one
+4. run the Python scripts one by one
     
 `python linkage.py`
 
+`python optimizer_anneal.py`
+
 `python linkage_physics.py`
 
-`python optimizer_anneal.py`
+### About linkage_physics.py
+
+To run linkage_physics.py, you need the 'best.pickle' file that contains the design from optimizer_anneal.py. That said, before you run optimizer_anneal.py, you do not have it yet. 
+
+If you want to simply test the linkage_physics.py, instead, you can replace 
+
+`robot=create_robot('best.pickle', sep=5.)`
+
+with 
+
+`link=Linkage.createSimple()`
+
+`robot=create_robot(link, sep=5.) `
+
+Once you run linkage_physics.py, you can control the robots via
+
+press 'SPACE' to turn on/off simulation
+
+press 'RCTRL' to turn on/off robot motor
+
 
 ### Installing Povray on Windows
 
