@@ -219,7 +219,7 @@ class LinkagePhysics:
         assert hasattr(self,"chassis")
         if rad_motor is None:
             rad_motor=self.link.rad_motor
-        self.offsetCtr=b2Vec2(-sep,-self.box[1]+rad_motor)
+        self.offsetCtr=b2Vec2(-sep,0)
         wheel_fixture = b2FixtureDef(
             shape=b2CircleShape(radius=rad_motor),
             density=self.settings.densityBody,
@@ -723,6 +723,7 @@ def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4)
 
     #ensure ctr_motor is zero
     link.ctr_motor=(0.,0.)
+    link.rad_motor=abs(link.rad_motor)
     #check whether each state can be reached
     if not link.check_validity():
         return None
