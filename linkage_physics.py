@@ -1,6 +1,7 @@
 from Box2D import (b2DrawExtended,b2PolygonShape,b2CircleShape,b2FixtureDef,b2World,b2Vec2,b2AABB)
 from time import time
 from linkage import *
+import shutil
 
 class fwSettings:
     hz = 360.0
@@ -414,6 +415,7 @@ class LinkagePhysics:
                 return diffY,diffA
         return diffY,diffA
     def eval_performance(self, seconds=10., y_error_bound=0.1, a_error_bound=math.pi*30./180.):
+        self.load_state()
         x0=self.chassis.position.x
         y0=self.chassis.position.y
         self.settings.motorOn=True
@@ -558,7 +560,17 @@ class LinkagePhysics:
         for body in self.world.bodies:
             aabb.Combine(LinkagePhysics.get_aabb(body))
         return aabb
-    @staticmethod 
+    def save_state(self):
+        self.state=[(b.position.x,b.position.y,b.angle) for b in self.world.bodies]
+    def load_state(self):
+        for s,b in zip(self.state,self.world.bodies):
+            b.position.x=s[0]
+            b.position.y=s[1]
+            b.angle=s[2]
+            b.linearVelocity.x=0
+            b.linearVelocity.y=0
+            b.angularVelocity=0
+    @staticmethod
     def get_aabb(body):
         FLT_MAX=1e6
         aabb=b2AABB()
@@ -583,28 +595,31 @@ class LinkagePhysics:
                 aabb2.upperBound=b2Vec2(v[0],v[1])+r
                 aabb.Combine(aabb2)
         return aabb
-    
-def main_linkage_physics(link, path='frms'):
+
+def main_linkage_physics(link, path='frms', recordTime=None):
     #param
     aaCoef=4
     batch=24
-    sim=False
+    sim=False if recordTime is None else True
     pov=False
     povAll=False
     orthoCam=False
     timeSpan=30
-    ctr=True
-    
+    ctr=False
+
     #visualize
     pygame.init()
     screen=pygame.display.set_mode((512,512))
     screen_hires=pygame.Surface((screen.get_width()*aaCoef,screen.get_height()*aaCoef))
+    link.settings.motorOn=True
+    link.load_state()   #reset state
     link.center_view(screen_hires)
     link.set_zoom(50)
     done=False
     offset=False
     loc=None
     fid=0
+    frmId = 0
     print("SPACE    : simulate")
     print("LCTRL    : orthogonal render")
     print("1        : perspective render")
@@ -629,6 +644,8 @@ def main_linkage_physics(link, path='frms'):
                 orthoCam=False
                 povAll=not povAll
                 frmId=0
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_3:
+                link.load_state()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RCTRL:
                 link.settings.motorOn=not link.settings.motorOn
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_LSHIFT:
@@ -667,8 +684,23 @@ def main_linkage_physics(link, path='frms'):
             sim=True
             if frmId>timeSpan*link.settings.hz/batch:
                 povAll=False
-        else: link.render(screen_hires)
-        pygame.transform.smoothscale(screen_hires,screen.get_size(),screen)
+        else:
+            link.render(screen_hires)
+            pygame.transform.smoothscale(screen_hires,screen.get_size(),screen)
+            if recordTime is not None:
+                assert isinstance(recordTime,float) or isinstance(recordTime,int)
+                if frmId==0 and os.path.exists(path):
+                    shutil.rmtree(path)
+                if not os.path.exists(path):
+                    os.mkdir(path)
+                #save image
+                pygame.image.save(screen,path+'/frm%d.png'%frmId)
+                frmId+=1
+                #terminate condition
+                if frmId * batch / link.settings.hz > recordTime:
+                    from gen_gif import img_to_gif
+                    img_to_gif(path+'/frm%d.png', 'record.gif', screen.get_size(), 1000/batch)
+                    break
         pygame.display.flip()
         fid=fid+1
         
@@ -701,10 +733,11 @@ def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4)
     robot.create_legs(0.,  sep, None, 'symmetric_back_leg', nleg)
     bb=robot.bounding_box()
     robot.create_floor(offy=bb.lowerBound.y)
+    robot.save_state()
     return robot
         
-if __name__=='__main__': 
+if __name__=='__main__':
     link=Linkage.createSimple()
     robot=create_robot('best.pickle', sep=5.)
     print("Walking distance over 10 seconds: %f"%robot.eval_performance(10.))
-    main_linkage_physics(robot)
+    main_linkage_physics(robot, recordTime=100)

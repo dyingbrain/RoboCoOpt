@@ -6,3 +6,6 @@ __temp__.tga
 .pickle
 .png
 /robo-env/
+/frms/
+/pickle/
+*.gif
