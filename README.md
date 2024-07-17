@@ -1,4 +1,3 @@
-
 ### Robot Co-optimization using planar linkage
 The base code implements the planar linkage kinematics in `linkage.py`, and the linkage can be installed on a robot and simulate to test the robot performance using `linkage_physics.py`.  Finally, we implemented a basic linkage optimizer using simulated annealing in `optimizer_anneal.py`.
 
@@ -16,6 +15,8 @@ The base code implements the planar linkage kinematics in `linkage.py`, and the 
 - I created a simple GUI around this functionality to keep track of all the results and the best result using `PyQt5`.
 
 ![Day 1 Output](/misc/day1_out.png)
+
+https://github.com/user-attachments/assets/9985374c-505e-48f7-9b4a-3bfdfeb526aa
 
 #### Install
 
