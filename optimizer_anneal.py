@@ -141,6 +141,8 @@ class LinkageAnnealer(Annealer):
     def nrN(self):
         return len(self.state)//5
     def move(self):
+        self.mutation()
+    def mutation(self):
         state0=copy.deepcopy(self.state)
         while True:
             self.state=copy.deepcopy(state0)
