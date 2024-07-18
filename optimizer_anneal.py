@@ -48,7 +48,7 @@ class LinkageAnnealer(Annealer):
         return ret
     def check_topology_feasibility(self):
         #check if there is at least one non-motor movable node
-        if self.state[-1] != self.MOVABLE or len(self.state)//5<=3:
+        if self.state[-1] != self.MOVABLE or len(self.state)//5<3:
             return False
         #check if every node is connected to the last node
         visited=[False for i in range(self.nrN())]
@@ -158,6 +158,27 @@ class LinkageAnnealer(Annealer):
                 #remove node
                 if self.remove_node():
                     break
+    def cross_over_once(self, mother, father):
+        nrN_mother = len(mother)//5
+        nrN_father = len(father)//5
+        nrN_max = max(nrN_mother,nrN_father)
+        result = []
+        for i in range(nrN_max):
+            choice=random.randint(0,1)
+            if choice == 0:
+                if len(mother) < i*5+5:
+                    break
+                result += mother[i*5:i*5+5]
+            else:
+                if len(father) < i*5+5:
+                    break
+                result += father[i*5:i*5+5]
+        return result
+    def cross_over(self, mother, father):
+        while True: #this will always terminate by only choosing mother/father
+            self.state = self.cross_over_once(mother, father)
+            if self.check_geometry_feasibility() and self.check_geometry_feasibility():
+                break
     def energy(self):
         link=self.set_to_linkage()
         robot=create_robot(link, sep=5.)
