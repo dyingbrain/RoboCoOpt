@@ -15,7 +15,7 @@ class LinkageAnnealer(Annealer):
         self.maxTrial=100
         while True:
             self.state=self.generate_init_state()
-            if self.check_topology_feasibility() and self.check_geometry_feasibility() and self.nrN()>3:
+            if self.check_topology_feasibility() and self.check_geometry_feasibility():
                 break
     def generate_init_state(self, ret=None):
         if ret is None:
@@ -47,6 +47,9 @@ class LinkageAnnealer(Annealer):
             ret=ret[0:len(ret)-5]
         return ret
     def check_topology_feasibility(self):
+        #check if there is at least one non-motor movable node
+        if self.state[-1] != self.MOVABLE or len(self.state)//5<=3:
+            return False
         #check if every node is connected to the last node
         visited=[False for i in range(self.nrN())]
         visited[self.nrN()-1]=True
@@ -78,17 +81,9 @@ class LinkageAnnealer(Annealer):
             if self.state[i*5+4]==self.MOVABLE and not visited[i]:
                 return False
         return True
-    def check_geometry_feasibility(self,nrSample=32):
+    def check_geometry_feasibility(self):
         self.link=self.set_to_linkage()
-        for i in range(nrSample):
-            theta,succ=self.link.forward_kinematic(math.pi*2*i/nrSample)
-            if not succ:
-                return False
-            for pos in self.link.node_position:
-                for d in range(2):
-                    if pos[d]<-self.B or pos[d]>self.B:
-                        return False
-        return True
+        return self.link.check_geometry_feasibility()
     def change_geometry(self):
         #we can change rad_motor,len1,len2
         #we cannot change ctr_motor
@@ -123,16 +118,8 @@ class LinkageAnnealer(Annealer):
     def remove_node(self):
         if len(self.state)==5:
             return False
-        state0=self.state[0:len(self.state)-5]
-        while state0[-1]==self.FIXED:
-            state0=state0[0:len(state0)-5]
-        trial=0
-        while trial<self.maxTrial:
-            self.state=self.generate_init_state(ret=copy.deepcopy(state0))
-            if self.check_topology_feasibility() and self.check_geometry_feasibility() and self.nrN()>0:
-                break
-            trial=trial+1
-        return trial<self.maxTrial
+        self.state=self.state[0:len(self.state)-5]
+        return self.check_topology_feasibility() and self.check_geometry_feasibility()
     def set_to_linkage(self):
         link=Linkage(self.nrN())
         link.rad_motor=self.state[1]
