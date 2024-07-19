@@ -183,7 +183,7 @@ if __name__=='__main__':
     opt.steps=1000
     state,e=opt.anneal()
     print('best walk distance=%f'%(-e))
-    with open('best.pickle', 'wb') as handle:
+    with open('best_sa.pickle', 'wb') as handle:
         pickle.dump(state, handle)
     
     opt.state=state

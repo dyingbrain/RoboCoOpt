@@ -2,6 +2,11 @@ from Box2D import (b2DrawExtended,b2PolygonShape,b2CircleShape,b2FixtureDef,b2Wo
 from time import time
 from linkage import *
 import shutil
+from enum import Enum
+
+class LinkageOptimizer(Enum):
+    GA = 0
+    ANNEAL = 1
 
 class fwSettings:
     hz = 360.0
@@ -704,41 +709,56 @@ def main_linkage_physics(link, path='frms', recordTime=None):
         pygame.display.flip()
         fid=fid+1
         
-def create_robot(link, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4):
-    if isinstance(link,str):
-        import pickle
-        from optimizer_anneal import LinkageAnnealer
-        opt=LinkageAnnealer()
-        with open(link, 'rb') as handle:
-            state=pickle.load(handle)
-        opt.state=state
-        link=opt.set_to_linkage()
-        
-    settings=fwSettings()
-    settings.torque=tau
-    settings.motorSpeed=spd
-    settings.friction=mu
-    settings.densityBody=dr
-    settings.densityLeg=dl
+def create_robot(link, algo=LinkageOptimizer.ANNEAL, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4):    
+    from optimizer_anneal import LinkageAnnealer
+    from optimizer_ga import LinkageGA 
 
-    #ensure ctr_motor is zero
-    link.ctr_motor=(0.,0.)
-    link.rad_motor=abs(link.rad_motor)
-    #check whether each state can be reached
+    if isinstance(link, str):
+        import pickle
+        if algo == LinkageOptimizer.ANNEAL:
+            opt = LinkageAnnealer()
+        elif algo == LinkageOptimizer.GA:
+            opt = LinkageGA()
+            print("Running Genetic Algorithm!")
+            opt.run()
+        else:
+            raise ValueError("Invalid algorithm specified!")
+
+        with open(link, 'rb') as handle:
+            if algo == LinkageOptimizer.ANNEAL:
+                opt.state = pickle.load(handle)
+                
+            elif algo == LinkageOptimizer.GA:
+                solution = pickle.load(handle)
+                data = opt.solution_to_data(solution)
+                link = opt.set_to_linkage(data)
+            else:
+                raise ValueError("Invalid algorithm specified!")        
+
+    settings = fwSettings()
+    settings.torque = tau
+    settings.motorSpeed = spd
+    settings.friction = mu
+    settings.densityBody = dr
+    settings.densityLeg = dl
+
+    # ensure ctr_motor is zero
+    link.ctr_motor = (0., 0.)
+    link.rad_motor = abs(link.rad_motor)
+    # check whether each state can be reached
     if not link.check_validity():
         return None
-        
-    robot=LinkagePhysics(link,settings=settings)
-    robot.create_torso((-abs(sep),-1.),(abs(sep),1.))
+
+    robot = LinkagePhysics(link, settings=settings)
+    robot.create_torso((-abs(sep), -1.), (abs(sep), 1.))
     robot.create_legs(0., -sep, None, 'symmetric_leg', nleg)
-    robot.create_legs(0.,  sep, None, 'symmetric_back_leg', nleg)
-    bb=robot.bounding_box()
+    robot.create_legs(0., sep, None, 'symmetric_back_leg', nleg)
+    bb = robot.bounding_box()
     robot.create_floor(offy=bb.lowerBound.y)
     robot.save_state()
     return robot
         
 if __name__=='__main__':
-    link=Linkage.createSimple()
-    robot=create_robot('best.pickle', sep=5.)
+    robot=create_robot('best_ga.pickle', algo=LinkageOptimizer.GA, sep=5.)
     print("Walking distance over 10 seconds: %f"%robot.eval_performance(10.))
     main_linkage_physics(robot, recordTime=100)
