@@ -713,7 +713,7 @@ def main_linkage_physics(link, path='out/sim', recordTime=None):
         
 def create_robot(link, algo=LinkageOptimizer.ANNEAL, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4):    
     from robocoopt.opt.anneal.optimizer_anneal import LinkageAnnealer
-    from robocoopt.opt.ga.optimizer_ga import LinkageGA, solution_to_data
+    from robocoopt.opt.ga.optimizer_ga import LinkageGA
 
     if isinstance(link, str):
         import pickle
@@ -733,7 +733,7 @@ def create_robot(link, algo=LinkageOptimizer.ANNEAL, tau=8000., spd=1., sep=5., 
                 
             elif algo == LinkageOptimizer.GA:
                 solution = pickle.load(handle)
-                link = solution_to_data(solution).set_to_linkage()
+                link = LinkageGA.solution_to_data(solution).set_to_linkage()
             else:
                 raise ValueError("Invalid algorithm specified!")        
 

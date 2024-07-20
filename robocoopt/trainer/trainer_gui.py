@@ -9,7 +9,7 @@ class TrainingWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.init_trainer()
+        self.trainer = None
         self.init_ui()
 
     def init_ui(self):
@@ -25,7 +25,7 @@ class TrainingWindow(QtWidgets.QMainWindow):
 
     def init_window(self):
         self.setWindowTitle("Linkage Trainer")
-        self.setGeometry(100, 100, 400, 300)
+        self.setGeometry(100, 100, 400, 400)
         self.show()
 
     def init_layouts(self):
@@ -34,14 +34,29 @@ class TrainingWindow(QtWidgets.QMainWindow):
         self.main_layout = QtWidgets.QVBoxLayout()
         self.central_widget.setLayout(self.main_layout)
 
+        self.algo_layout = QtWidgets.QHBoxLayout()
+        self.main_layout.addLayout(self.algo_layout)
         self.btn_layout = QtWidgets.QHBoxLayout()
         self.main_layout.addLayout(self.btn_layout)
         self.data_layout = QtWidgets.QVBoxLayout()
         self.main_layout.addLayout(self.data_layout)
 
     def init_components(self):
+        self.init_algo_radio_btns()
         self.init_training_btns()
         self.init_data_labels()
+
+    def init_algo_radio_btns(self):
+        self.algo_grp = QtWidgets.QButtonGroup()
+
+        self.anneal_radio = QtWidgets.QRadioButton("Simulated Annealing")
+        self.anneal_radio.setChecked(True)
+        self.algo_grp.addButton(self.anneal_radio)
+        self.algo_layout.addWidget(self.anneal_radio)
+
+        self.ga_radio = QtWidgets.QRadioButton("Genetic Algorithm")
+        self.algo_grp.addButton(self.ga_radio)
+        self.algo_layout.addWidget(self.ga_radio)
 
     def init_training_btns(self):
         self.start_training_btn = QtWidgets.QPushButton("Start Training")
@@ -70,7 +85,13 @@ class TrainingWindow(QtWidgets.QMainWindow):
         self.all_scores_label.setText(f"All Scores: {rounded_scores}")
 
     def on_start_training_btn_clicked(self):
-        self.start_training_signal.emit()
+        algorithm = 'SA' if self.sa_radio.isChecked() else 'GA'
+        self.trainer = TrainingThread(algorithm) 
+        self.start_training_signal.connect(self.trainer.start_training)
+        self.stop_training_signal.connect(self.trainer.stop_training)
+        self.trainer.update_scores.connect(self.update_scores)
+
+        self.start_training_signal.emit(algorithm) 
         self.enable_disable_training_btns(True)
 
     def on_stop_training_btn_clicked(self):
