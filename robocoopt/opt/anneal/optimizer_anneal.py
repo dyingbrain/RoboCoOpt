@@ -1,7 +1,7 @@
 from robocoopt.linkage.linkage_physics import *
 from robocoopt.opt.anneal.anneal import Annealer
 from robocoopt.util.utility import *
-import copy,pickle
+import copy,pickle,math,random
 
 class LinkageAnnealer(Annealer):
     NOT_USED=-1

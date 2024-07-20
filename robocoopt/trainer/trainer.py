@@ -1,10 +1,10 @@
 import os, pickle, time, json
 from PyQt5.QtCore import QThread, pyqtSignal
-from ..linkage.linkage_physics import Linkage, LinkagePhysics, create_robot
-from ..opt.anneal.optimizer_anneal import LinkageAnnealer
+from robocoopt.linkage.linkage_physics import create_robot
+from robocoopt.opt.anneal.optimizer_anneal import LinkageAnnealer
 
-PICKLE_FOLDER = 'pickle'
-HIGHSCORE_FILE = 'best.pickle'
+PICKLE_FOLDER = 'out/pickle/temp'
+HIGHSCORE_FILE = 'out/pickle/best.pickle'
 ALL_SCORES_FILE = os.path.join(PICKLE_FOLDER, 'scores.json')
 
 if not os.path.exists(PICKLE_FOLDER):
@@ -12,7 +12,7 @@ if not os.path.exists(PICKLE_FOLDER):
 
 def run_annealing_once():
     opt = LinkageAnnealer()
-    opt.steps = 2000
+    opt.steps = 100
     state, e = opt.anneal()
 
     pickle_filename = os.path.join(PICKLE_FOLDER, f'{time.time()}.pickle')

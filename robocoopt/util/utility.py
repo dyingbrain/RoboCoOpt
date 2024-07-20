@@ -1,4 +1,4 @@
-import math,types,os,random
+import math,os
 import numpy as np
 
 def clearEqName():
