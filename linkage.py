@@ -154,7 +154,7 @@ class Linkage:
             len2Sqr = self.len2[i] ** 2
             coefA = d12Sqr + len1Sqr - len2Sqr
             coefB = 4 * d12Sqr * len1Sqr - coefA ** 2
-            if np.any(coefB < 0.):
+            if np.any(coefB < 0.) or np.any(d12Sqr <= 0.):
                 return False
             coefB = np.sqrt(coefB)
             xi = d1[0] + (-d12[0] * coefA + d12[1] * coefB) / (2 * d12Sqr)
