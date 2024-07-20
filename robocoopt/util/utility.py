@@ -110,3 +110,11 @@ def areaIndex(a,b,C=1.):
     #[a[1],-a[0]]*[b[0],b[1]]=a[1]*b[0]-a[0]*b[1]
     return [(a[1],b[0]),(a[0],b[1])],[1.,-1.]
 
+def pickle_file_path(filename, use_absolute_path=True):
+    if use_absolute_path:
+        current_dir = os.path.dirname(__file__)
+        pickle_dir = os.path.abspath(os.path.join(current_dir, '../../out/pickle'))
+        return os.path.join(pickle_dir, filename)
+    else:
+        return os.path.join('out/pickle', filename)
+

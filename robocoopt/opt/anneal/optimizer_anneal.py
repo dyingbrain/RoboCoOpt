@@ -1,5 +1,6 @@
-from ...linkage.linkage_physics import *
-from .anneal import Annealer
+from robocoopt.linkage.linkage_physics import *
+from robocoopt.opt.anneal.anneal import Annealer
+from robocoopt.util.utility import *
 import copy,pickle
 
 class LinkageAnnealer(Annealer):
@@ -183,7 +184,8 @@ if __name__=='__main__':
     opt.steps=1000
     state,e=opt.anneal()
     print('best walk distance=%f'%(-e))
-    with open('best_sa.pickle', 'wb') as handle:
+
+    with open(pickle_file_path('best_sa.pickle'), 'wb') as handle:
         pickle.dump(state, handle)
     
     opt.state=state

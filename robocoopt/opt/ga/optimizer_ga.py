@@ -1,4 +1,5 @@
-from ...linkage.linkage_physics import *
+from robocoopt.linkage.linkage_physics import *
+from robocoopt.util.utility import *
 import pygad
 import numpy
 import copy,pickle
@@ -284,7 +285,8 @@ def data_to_solution(linkage):
 
 def solution_to_data(solution):
     #print("solution", solution)
-    solution = solution
+    if type(solution) is not list:
+        solution = solution.tolist()
     node_num = len(solution) // 5
     while (int(solution[node_num * 5 - 1]) is NOT_USED) and node_num > 0:
         node_num = node_num - 1
@@ -395,7 +397,7 @@ if __name__ == '__main__':
     num_generations = 80
     num_parents_mating = 4
 
-    sol_per_pop = 200
+    sol_per_pop = 10
     #num_genes=30
     initial_population=generate_population(sol_per_pop)
     gene_space = generate_gen_space()
@@ -433,7 +435,8 @@ if __name__ == '__main__':
     print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
 
     linkage = solution_to_data(solution)
-    with open('bestGA.pickle', 'wb') as handle:
+
+    with open(pickle_file_path('best_ga.pickle'), 'wb') as handle:
         pickle.dump(linkage.state, handle)
 
     link = linkage.set_to_linkage()

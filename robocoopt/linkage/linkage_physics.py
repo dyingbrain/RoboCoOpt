@@ -1,6 +1,7 @@
 from Box2D import (b2DrawExtended,b2PolygonShape,b2CircleShape,b2FixtureDef,b2World,b2Vec2,b2AABB)
 from time import time
-from .linkage import *
+from robocoopt.linkage.linkage import *
+from robocoopt.util.utility import *
 import shutil
 from enum import Enum
 
@@ -601,7 +602,7 @@ class LinkagePhysics:
                 aabb.Combine(aabb2)
         return aabb
 
-def main_linkage_physics(link, path='frms', recordTime=None):
+def main_linkage_physics(link, path='out', recordTime=None):
     #param
     aaCoef=4
     batch=24
@@ -683,7 +684,7 @@ def main_linkage_physics(link, path='frms', recordTime=None):
         if povAll:
             if not os.path.exists(path):
                 os.mkdir(path)
-            loc=link.render_pov(path+'/frm%d.png'%frmId,screen_hires, areaLight=False, floorScale=10., orthoCam=orthoCam, loc=loc)
+            loc=link.render_pov(path+ '/sim' + '/frm%d.png'%frmId,screen_hires, areaLight=False, floorScale=10., orthoCam=orthoCam, loc=loc)
             link.settings.motorOn=True
             frmId+=1
             sim=True
@@ -699,19 +700,19 @@ def main_linkage_physics(link, path='frms', recordTime=None):
                 if not os.path.exists(path):
                     os.mkdir(path)
                 #save image
-                pygame.image.save(screen,path+'/frm%d.png'%frmId)
+                pygame.image.save(screen,path+ '/sim' + '/frm%d.png'%frmId)
                 frmId+=1
                 #terminate condition
                 if frmId * batch / link.settings.hz > recordTime:
-                    from gen_gif import img_to_gif
-                    img_to_gif(path+'/frm%d.png', 'record.gif', screen.get_size(), 1000/batch)
+                    from robocoopt.util.gen_gif import img_to_gif
+                    img_to_gif(path+'/frm%d.png', sim_file_path('out.gif'), screen.get_size(), 1000/batch)
                     break
         pygame.display.flip()
         fid=fid+1
         
 def create_robot(link, algo=LinkageOptimizer.ANNEAL, tau=8000., spd=1., sep=5., mu=0.25, dr=1., dl=1., nleg=4):    
-    from ..opt.anneal.optimizer_anneal import LinkageAnnealer
-    from ..opt.ga.optimizer_ga import LinkageGA, solution_to_data
+    from robocoopt.opt.anneal.optimizer_anneal import LinkageAnnealer
+    from robocoopt.opt.ga.optimizer_ga import LinkageGA, solution_to_data
 
     if isinstance(link, str):
         import pickle
@@ -727,6 +728,7 @@ def create_robot(link, algo=LinkageOptimizer.ANNEAL, tau=8000., spd=1., sep=5., 
         with open(link, 'rb') as handle:
             if algo == LinkageOptimizer.ANNEAL:
                 opt.state = pickle.load(handle)
+                link = opt.set_to_linkage()
                 
             elif algo == LinkageOptimizer.GA:
                 solution = pickle.load(handle)
@@ -757,7 +759,7 @@ def create_robot(link, algo=LinkageOptimizer.ANNEAL, tau=8000., spd=1., sep=5., 
     robot.save_state()
     return robot
         
-if __name__=='__main__':
-    robot=create_robot('bestGA.pickle', algo=LinkageOptimizer.GA, sep=5.)
+if __name__=='__main__':    
+    robot=create_robot(pickle_file_path('best_sa.pickle'), algo=LinkageOptimizer.ANNEAL, sep=5.)
     print("Walking distance over 10 seconds: %f"%robot.eval_performance(10.))
-    main_linkage_physics(robot, recordTime=25)
+    main_linkage_physics(robot)
