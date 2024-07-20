@@ -3,9 +3,5 @@ __temp__
 __temp__.tga
 .idea
 .venv
-.pickle
 .png
 /robo-env/
-/frms/
-/out/
-*.gif
