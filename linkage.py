@@ -1,10 +1,12 @@
 import math
 from pov_utility import *
 from utility import *
-try:
-    import pygame
-except:
-    print("No GUI Support!")
+import contextlib
+with contextlib.redirect_stdout(None):
+    try:
+        import pygame
+    except:
+        print("No GUI Support!")
 
 class Linkage:
     def __init__(self,nrN,geom=None,t=1,linearMotor=False):

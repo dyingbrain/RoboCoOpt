@@ -1,6 +1,7 @@
 __pycache__
 __temp__
 frms
+mcts_results
 __temp__.tga
 .idea
 .venv

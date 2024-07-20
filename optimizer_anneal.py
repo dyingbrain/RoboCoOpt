@@ -1,6 +1,7 @@
-from linkage_physics import *
+from linkage_physics import create_robot,main_linkage_physics
+from linkage import Linkage
 from anneal import Annealer
-import copy,pickle
+import math,copy,pickle,random
 
 class LinkageAnnealer(Annealer):
     NOT_USED=-1
