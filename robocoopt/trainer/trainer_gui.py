@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal
 
 class TrainingWindow(QtWidgets.QMainWindow):
-    start_training_signal = pyqtSignal()
+    start_training_signal = pyqtSignal(str)
     stop_training_signal = pyqtSignal()
 
     def __init__(self):
@@ -17,8 +17,8 @@ class TrainingWindow(QtWidgets.QMainWindow):
         self.init_layouts()
         self.init_components()
 
-    def init_trainer(self):
-        self.trainer = TrainingThread()
+    def init_trainer(self, algorithm):
+        self.trainer = TrainingThread(algorithm) 
         self.start_training_signal.connect(self.trainer.start_training)
         self.stop_training_signal.connect(self.trainer.stop_training)
         self.trainer.update_scores.connect(self.update_scores)
@@ -78,18 +78,19 @@ class TrainingWindow(QtWidgets.QMainWindow):
         self.data_layout.addWidget(self.current_score_label)
         self.data_layout.addWidget(self.all_scores_label)
 
-    def update_scores(self, high_score, scores):
+    def update_scores(self, high_scores, scores):  
         rounded_scores = [round(score, 2) for score in scores]
-        self.high_score_label.setText(f"Highest Score: {round(high_score, 2)}")
+        
+        self.high_score_label.setText(
+            f"Highest Scores: SA: {round(high_scores['SA'], 2)}, "
+            f"GA: {round(high_scores['GA'], 2)}"
+        ) 
         self.current_score_label.setText(f"Current Score: {rounded_scores[-1]}")
         self.all_scores_label.setText(f"All Scores: {rounded_scores}")
 
     def on_start_training_btn_clicked(self):
-        algorithm = 'SA' if self.sa_radio.isChecked() else 'GA'
-        self.trainer = TrainingThread(algorithm) 
-        self.start_training_signal.connect(self.trainer.start_training)
-        self.stop_training_signal.connect(self.trainer.stop_training)
-        self.trainer.update_scores.connect(self.update_scores)
+        algorithm = 'SA' if self.anneal_radio.isChecked() else 'GA'
+        self.init_trainer(algorithm)     
 
         self.start_training_signal.emit(algorithm) 
         self.enable_disable_training_btns(True)

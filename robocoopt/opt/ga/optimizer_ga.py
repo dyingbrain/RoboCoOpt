@@ -14,17 +14,20 @@ class LinkageGA():
     maxTrial = 100
     maxDist = 2.0 * math.sqrt(2.0) * B
 
-    def __init__(self, state=[], K=5, B=10, desired_output=30, num_generations=80, num_parents_mating=4, sol_per_pop=10,
+    def __init__(self, state=[], K=5, B=10, desired_output=30, num_generations=5, num_parents_mating=4, sol_per_pop=5,
                  parent_selection_type="sss", keep_parents=1, num_threads=32):
+        
         self.state = state
         self.K = K
         self.B = B
         self.maxTrial = 100
+
         if len(self.state) == 0:
             while True:
                 self.state = self.generate_init_state()
                 if self.check_topology_feasibility() and self.check_geometry_feasibility():
                     break
+
         self.desired_output = desired_output
         self.num_generations = num_generations
         self.num_parents_mating = num_parents_mating
@@ -302,10 +305,7 @@ class LinkageGA():
     def generate_solution():
         linkage = LinkageGA()
         link = linkage.set_to_linkage()
-        robot = create_robot(link, sep=5.)
-        if robot is not None:
-            print("performance", robot.eval_performance(10.))
-        print(linkage.state)
+        robot = create_robot(link, sep=5.)  
         return LinkageGA.data_to_solution(linkage)
     
     @staticmethod
@@ -398,14 +398,17 @@ class LinkageGA():
         )
 
         ga_instance.run()
-        
+        return ga_instance
+    
+    @staticmethod
+    def visualize_results(ga_instance):
         solution, solution_fitness, solution_idx = ga_instance.best_solution()
         print("Parameters of the best solution : {solution}".format(
             solution=solution))
         print("Fitness value of the best solution = {solution_fitness}".format(
             solution_fitness=solution_fitness))
 
-        linkage = self.solution_to_data(solution)
+        linkage = LinkageGA.solution_to_data(solution)
 
         with open(pickle_file_path('best_ga.pickle'), 'wb') as handle:
             pickle.dump(linkage.state, handle)
@@ -414,6 +417,10 @@ class LinkageGA():
         robot = create_robot(link, sep=5.)
         main_linkage_physics(robot)
 
-if __name__ == '__main__':
+def main():
     linkage_ga = LinkageGA()
-    linkage_ga.run()
+    linkage_inst = linkage_ga.run()
+    linkage_ga.visualize_results(linkage_inst)
+
+if __name__ == '__main__':
+    main()
