@@ -114,7 +114,10 @@ def pickle_file_path(filename, use_absolute_path=True):
     if use_absolute_path:
         current_dir = os.path.dirname(__file__)
         pickle_dir = os.path.abspath(os.path.join(current_dir, '../../out/pickle'))
-        return os.path.join(pickle_dir, filename)
     else:
-        return os.path.join('out/pickle', filename)
+        pickle_dir = 'out/pickle'
+
+    os.makedirs(pickle_dir, exist_ok=True)
+
+    return os.path.join(pickle_dir, filename)
 

@@ -602,7 +602,7 @@ class LinkagePhysics:
                 aabb.Combine(aabb2)
         return aabb
 
-def main_linkage_physics(link, path='out', recordTime=None):
+def main_linkage_physics(link, path='out/sim', recordTime=None):
     #param
     aaCoef=4
     batch=24
@@ -684,7 +684,7 @@ def main_linkage_physics(link, path='out', recordTime=None):
         if povAll:
             if not os.path.exists(path):
                 os.mkdir(path)
-            loc=link.render_pov(path+ '/sim' + '/frm%d.png'%frmId,screen_hires, areaLight=False, floorScale=10., orthoCam=orthoCam, loc=loc)
+            loc=link.render_pov(path+ '/frm%d.png'%frmId,screen_hires, areaLight=False, floorScale=10., orthoCam=orthoCam, loc=loc)
             link.settings.motorOn=True
             frmId+=1
             sim=True
@@ -700,12 +700,13 @@ def main_linkage_physics(link, path='out', recordTime=None):
                 if not os.path.exists(path):
                     os.mkdir(path)
                 #save image
-                pygame.image.save(screen,path+ '/sim' + '/frm%d.png'%frmId)
+                pygame.image.save(screen,path+ '/frm%d.png'%frmId)
                 frmId+=1
                 #terminate condition
                 if frmId * batch / link.settings.hz > recordTime:
-                    from robocoopt.util.gen_gif import img_to_gif
-                    img_to_gif(path+'/frm%d.png', sim_file_path('out.gif'), screen.get_size(), 1000/batch)
+                    from robocoopt.util.gen_gif import img_to_gif 
+                    os.makedirs(os.path.join(path, 'gif'), exist_ok=True)              
+                    img_to_gif(path+'/frm%d.png', 'out/sim/gif/out.gif', screen.get_size(), 1000/batch)
                     break
         pygame.display.flip()
         fid=fid+1
@@ -762,4 +763,4 @@ def create_robot(link, algo=LinkageOptimizer.ANNEAL, tau=8000., spd=1., sep=5., 
 if __name__=='__main__':    
     robot=create_robot(pickle_file_path('best_sa.pickle'), algo=LinkageOptimizer.ANNEAL, sep=5.)
     print("Walking distance over 10 seconds: %f"%robot.eval_performance(10.))
-    main_linkage_physics(robot)
+    main_linkage_physics(robot, recordTime=3)
