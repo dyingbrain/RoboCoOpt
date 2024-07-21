@@ -19,8 +19,12 @@ The base code implements the planar linkage kinematics in `linkage.py`, and the 
 https://github.com/user-attachments/assets/9985374c-505e-48f7-9b4a-3bfdfeb526aa
 
 #### Day 2
-- Let the tool run for the entire day, achieved a fitness score of `~25.5`
+- Let the tool run for the entire day, achieved a fitness score of `~25.5` using Simulated Anenaling over multiple iterations using the trainer.
 - Implemented genetic algorithms by Tina Wu.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/110c3e45-b22a-4aef-ac7d-98d572f29fd5" alt="record">
+</p>
 
 #### Day 3
 - Fixed several bugs associated with genetic algo, improved upon the code design.
