@@ -33,6 +33,16 @@ https://github.com/user-attachments/assets/9985374c-505e-48f7-9b4a-3bfdfeb526aa
   <img src="https://github.com/user-attachments/assets/ebd2197b-2055-4b4a-b5cd-c93a0d1dc76e" alt="record">
 </p>
 
+#### Day 4
+- Implemented parallel processing for the genetic algorithm to speed up the process.
+- Fixed the issue with the wheels being too big.
+- Implemented the custom `crossover` and `mutation` functions to improve the results by the genetic algorithm.
+- Fitness score of `~24.05` achieved after over 100 generations with a population size of 100 in each generation.
+
+#### Day 5
+- Converted the project structure into that of python package.
+- Extended the trainer gui to include the genetic algorithm functionality as well as accepting parameters for both algorithms.
+
 #### Install
 
 The code has been tested on Python 3.6 and 3.12. 
