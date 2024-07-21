@@ -2,8 +2,6 @@ from robocoopt.linkage.linkage_physics import *
 from robocoopt.util.utility import *
 import pygad, numpy, pickle, copy, random, math
 
-
-
 class LinkageGA():
     MAX_NODE = 6
     NOT_USED = -1
@@ -14,8 +12,8 @@ class LinkageGA():
     maxTrial = 100
     maxDist = 2.0 * math.sqrt(2.0) * B
 
-    def __init__(self, state=[], K=5, B=10, desired_output=30, num_generations=5, num_parents_mating=4, sol_per_pop=5,
-                 parent_selection_type="sss", keep_parents=1, num_threads=32):
+    def __init__(self, state=[], K=5, B=10, num_generations=50, num_parents_mating=10, sol_per_pop=200,
+                 parent_selection_type="sss", keep_parents=2, num_threads=32):
         
         self.state = state
         self.K = K
@@ -28,7 +26,6 @@ class LinkageGA():
                 if self.check_topology_feasibility() and self.check_geometry_feasibility():
                     break
 
-        self.desired_output = desired_output
         self.num_generations = num_generations
         self.num_parents_mating = num_parents_mating
         self.sol_per_pop = sol_per_pop

@@ -10,38 +10,46 @@ ALL_SCORES_FILE = os.path.join(PICKLE_FOLDER, 'scores.json')
 if not os.path.exists(PICKLE_FOLDER):
     os.makedirs(PICKLE_FOLDER)
 
-def run_optimization_once(algorithm='SA'):
+def run_optimization_once(algorithm='SA', steps=None, num_generations=None, num_parents_mating=None,
+                       sol_per_pop=None, keep_parents=None, num_threads=None):
+
     score = -1
     pickle_filename = None
     state = None
 
     if algorithm == 'SA':
         opt = LinkageAnnealer()
-        opt.steps = 100
+        if steps is not None:
+            opt.steps = steps
         state, e = opt.anneal()
         link = opt.set_to_linkage()
 
     elif algorithm == 'GA':
-        ga = LinkageGA()  
+        ga = LinkageGA(
+            num_generations=num_generations,
+            num_parents_mating=num_parents_mating,
+            sol_per_pop=sol_per_pop,
+            keep_parents=keep_parents,
+            num_threads=num_threads
+        )
         ga_inst = ga.run()
         solution, solution_fitness, _ = ga_inst.best_solution()
         state = LinkageGA.solution_to_data(solution).state
         link = LinkageGA.solution_to_data(solution).set_to_linkage()
-
     else:
         print("Invalid algorithm selected.")
-        return score, pickle_filename, state
+        return score, pickle_filename, state 
 
     pickle_filename = os.path.join(PICKLE_FOLDER, f'{time.time()}.pickle')
     with open(pickle_filename, 'wb') as f:
         pickle.dump(state, f)
-    
+
     robo = create_robot(link, sep=5.)
 
     if robo is not None:
         score = robo.eval_performance(10.)
-        
-    return score, pickle_filename, state
+
+    return score, pickle_filename, state  
 
 def save_score_json(scores):
     with open(ALL_SCORES_FILE, 'w') as f:
@@ -56,10 +64,20 @@ def load_scores_json():
 class TrainingThread(QThread):
     update_scores = pyqtSignal(dict, list) 
 
-    def __init__(self, algorithm='SA'):
+    def __init__(self, algorithm_parms):
         super().__init__()
         self.is_running = False
-        self.algorithm = algorithm
+        self.algorithm = algorithm_parms['algorithm']
+
+        if self.algorithm == 'SA':
+            self.sa_steps = algorithm_parms.get('steps', 200)  
+        elif self.algorithm == 'GA':
+            self.ga_num_generations = algorithm_parms.get('num_generations', 50)
+            self.ga_num_parents_mating = algorithm_parms.get('num_parents_mating', 10)
+            self.ga_sol_per_pop = algorithm_parms.get('sol_per_pop', 200)
+            self.ga_keep_parents = algorithm_parms.get('keep_parents', 2)
+            self.ga_num_threads = algorithm_parms.get('num_threads', 3)
+
         self.scores = load_scores_json()
         self.high_scores = {'SA': 0, 'GA': 0}  
         self.load_high_scores()  
@@ -76,14 +94,14 @@ class TrainingThread(QThread):
         try:
             with open('out/pickle/best_sa.pickle', 'rb') as f:
                 sa_state = pickle.load(f)
-                opt = LinkageAnnealer()  # Create a LinkageAnnealer instance
-                opt.state = sa_state  # Set the loaded state
-                link = opt.set_to_linkage()  # Now call set_to_linkage
+                opt = LinkageAnnealer() 
+                opt.state = sa_state  
+                link = opt.set_to_linkage()  
                 robo = create_robot(link, sep=5.)
                 if robo is not None:
                     self.high_scores['SA'] = robo.eval_performance(10.)
         except FileNotFoundError:
-            pass 
+            pass  
         try:
             with open('out/pickle/best_ga.pickle', 'rb') as f:
                 ga_state = pickle.load(f)
@@ -96,15 +114,28 @@ class TrainingThread(QThread):
 
     def run(self):
         while self.is_running:
-            score, pickle_filename, state = run_optimization_once(self.algorithm)
+            if self.algorithm == 'SA':
+                score, pickle_filename, state = run_optimization_once(self.algorithm, steps=self.sa_steps)
+            elif self.algorithm == 'GA':
+                score, pickle_filename, state = run_optimization_once(
+                    self.algorithm,
+                    num_generations=self.ga_num_generations,
+                    num_parents_mating=self.ga_num_parents_mating,
+                    sol_per_pop=self.ga_sol_per_pop,
+                    keep_parents=self.ga_keep_parents,
+                    num_threads=self.ga_num_threads
+                )
+            else:
+                print("Invalid algorithm selected.")
+                break  
             if score == -1:
                 continue
 
             self.scores[pickle_filename] = score
-            self.update_scores.emit(self.high_scores, list(self.scores.values()))  
+            self.update_scores.emit(self.high_scores, list(self.scores.values()))
             save_score_json(self.scores)
 
-            if score > self.high_scores[self.algorithm]:  
+            if score > self.high_scores[self.algorithm]:
                 self.high_scores[self.algorithm] = score
                 if self.algorithm == 'SA':
                     filename = 'out/pickle/best_sa.pickle'
