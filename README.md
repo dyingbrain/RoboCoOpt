@@ -14,7 +14,9 @@ The base code implements the planar linkage kinematics in `linkage.py`, and the 
 - The best fitness score I got after 8 iterations was `~10.77` after 28 iterations of the optimizer.
 - I created a simple GUI around this functionality to keep track of all the results and the best result using `PyQt5`.
 
-![Day 1 Output](/misc/day1_out.png)  
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/6f84339c-da97-4221-b358-d3ee2c68577a" alt="record">
+</p>
 
 https://github.com/user-attachments/assets/9985374c-505e-48f7-9b4a-3bfdfeb526aa
 
@@ -50,7 +52,8 @@ https://github.com/user-attachments/assets/9985374c-505e-48f7-9b4a-3bfdfeb526aa
 #### Day 5
 - Converted the project structure into that of python package.
 - Extended the trainer gui to include the genetic algorithm functionality as well as accepting parameters for both algorithms.
-
+  
+<p align="center">
 <img width="411" alt="image" src="https://github.com/user-attachments/assets/b2cc8722-350b-4bc7-849a-2a3558e9778b">
-
+</p>
 
