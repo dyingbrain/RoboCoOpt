@@ -6,14 +6,15 @@ import copy,pickle,os,shutil
 
 class LinkAction(BaseAction):
     def __init__(self, deltaState=None):
-        #implement this
-        pass
+        self.deltaState = deltaState
     def __hash__(self):
-        #implement this
-        pass
+        return hash(tuple(self.deltaState))
     def __eq__(self, other):
-        #implement this
-        pass
+        return self.deltaState[0] == other.deltaState[0] and\
+        self.deltaState[1] == other.deltaState[1] and\
+        self.deltaState[2] == other.deltaState[2] and\
+        self.deltaState[3] == other.deltaState[3] and\
+        self.deltaState[4] == other.deltaState[4]
 
 class LinkState(BaseState):
     def __init__(self, parent=None, action=None, *, K=5, B=10,
@@ -24,17 +25,20 @@ class LinkState(BaseState):
         self.potential_rod_length = potential_rod_length
         self.motor_rad_optimizable = motor_rad_optimizable
     def get_possible_actions(self) -> [any]:
-        #implement this
         pass
     def take_action(self, action: any) -> 'BaseState':
-        #implement this
-        pass
+        return LinkState(self, action)
     def is_terminal(self) -> bool:
-        #implement this
-        pass
+        return len(self.state)>0 and self.state[-1]==LinkageAnnealer.NOT_USED
     def get_reward(self) -> float:
-        e=0
-        #implement this
+        self.anneal.state=copy.deepcopy(self.state)
+        while self.anneal.state[-1]==LinkageAnnealer.NOT_USED:
+            self.anneal.state=self.anneal.state[0:-5]
+        if not self.anneal.check_topology_feasibility():
+            return -1
+        if not self.anneal.check_geometry_feasibility():
+            return -1
+        e=-self.anneal.energy()
         print('experienced energy: %f'%e)
         self.write(e)
         return e
