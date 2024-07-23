@@ -1,10 +1,12 @@
 import math
 from ..util.pov_utility import *
 from ..util.utility import *
-try:
-    import pygame
-except:
-    print("No GUI Support!")
+import contextlib
+with contextlib.redirect_stdout(None):
+    try:
+        import pygame
+    except:
+        print("No GUI Support!")
 
 class Linkage:
     def __init__(self,nrN,geom=None,t=1,linearMotor=False):
@@ -152,7 +154,7 @@ class Linkage:
             len2Sqr = self.len2[i] ** 2
             coefA = d12Sqr + len1Sqr - len2Sqr
             coefB = 4 * d12Sqr * len1Sqr - coefA ** 2
-            if np.any(coefB < 0.):
+            if np.any(coefB < 0.) or np.any(d12Sqr <= 0.):
                 return False
             coefB = np.sqrt(coefB)
             xi = d1[0] + (-d12[0] * coefA + d12[1] * coefB) / (2 * d12Sqr)

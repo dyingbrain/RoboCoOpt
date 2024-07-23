@@ -13,5 +13,5 @@ setup(
     author_email='rajnish.ankt@gmail.com',
     description=DESC,
     packages=find_packages(),    
-    install_requires=['numpy', 'box2d', 'box2d-py', 'pygme', 'matplotlib', 'scipy', 'pyqt5', 'vapory', 'pygad']
+    install_requires=['numpy', 'box2d', 'box2d-py', 'pygme', 'matplotlib', 'scipy', 'pyqt5', 'vapory', 'pygad', 'mcts', 'monte-carlo-tree-search']
 )
